@@ -447,6 +447,7 @@ get_menu_selection(char** headers, char** items, int menu_only,
     int wrap_count = 0;
 
     while (chosen_item < 0 && chosen_item != GO_BACK) {
+        usleep(25000);
         int key = ui_wait_key();
         int visible = ui_text_visible();
 
