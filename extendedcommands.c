@@ -446,9 +446,6 @@ int format_device(const char *device, const char *path, const char *fs_type) {
         if (strstr(path, "/sdcard") == path && is_data_media()) {
             return format_unknown_device(NULL, path, NULL);
         }
-        // silent failure for sd-ext
-        if (strcmp(path, "/sd-ext") == 0)
-            return -1;
         LOGE("unknown volume \"%s\"\n", path);
         return -1;
     }
@@ -529,18 +526,6 @@ int format_unknown_device(const char *device, const char* path, const char *fs_t
 
     if (fs_type != NULL && get_flash_type(fs_type) != UNSUPPORTED)
         return erase_raw_partition(fs_type, device);
-
-    // if this is SDEXT:, don't worry about it if it does not exist.
-    if (0 == strcmp(path, "/sd-ext"))
-    {
-        struct stat st;
-        Volume *vol = volume_for_path("/sd-ext");
-        if (vol == NULL || 0 != stat(vol->device, &st))
-        {
-            ui_print("No app2sd partition found. Skipping format of /sd-ext.\n");
-            return 0;
-        }
-    }
 
     if (NULL != fs_type) {
         if (strcmp("ext3", fs_type) == 0) {
@@ -775,7 +760,6 @@ void show_nandroid_advanced_restore_menu(const char* path)
                             "Restore system",
                             "Restore data",
                             "Restore cache",
-                            "Restore sd-ext",
                             "Restore wimax",
                             NULL
     };
@@ -807,10 +791,6 @@ void show_nandroid_advanced_restore_menu(const char* path)
                 nandroid_restore(file, 0, 0, 0, 1, 0, 0);
             break;
         case 4:
-            if (confirm_selection(confirm_restore, "Yes - Restore sd-ext"))
-                nandroid_restore(file, 0, 0, 0, 0, 1, 0);
-            break;
-        case 5:
             if (confirm_selection(confirm_restore, "Yes - Restore wimax"))
                 nandroid_restore(file, 0, 0, 0, 0, 0, 1);
             break;
@@ -1043,7 +1023,6 @@ void create_fstab()
     write_fstab_root("/emmc", file);
     write_fstab_root("/system", file);
     write_fstab_root("/sdcard", file);
-    write_fstab_root("/sd-ext", file);
     fclose(file);
     LOGI("Completed outputting fstab.\n");
 }

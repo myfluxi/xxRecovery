@@ -299,19 +299,6 @@ int nandroid_backup(const char* backup_path)
     if (0 != (ret = nandroid_backup_partition_extended(backup_path, "/cache", 0)))
         return ret;
 
-    vol = volume_for_path("/sd-ext");
-    if (vol == NULL || 0 != stat(vol->device, &s))
-    {
-        ui_print("No sd-ext found. Skipping backup of sd-ext.\n");
-    }
-    else
-    {
-        if (0 != ensure_path_mounted("/sd-ext"))
-            ui_print("Could not mount sd-ext. sd-ext backup may not be supported on this device. Skipping backup of sd-ext.\n");
-        else if (0 != (ret = nandroid_backup_partition(backup_path, "/sd-ext")))
-            return ret;
-    }
-
     ui_print("Generating md5 sum...\n");
     sprintf(tmp, "nandroid-md5.sh %s", backup_path);
     if (0 != (ret = __system(tmp))) {
@@ -588,9 +575,6 @@ int nandroid_restore(const char* backup_path, int restore_boot, int restore_syst
         return ret;
 
     if (restore_cache && 0 != (ret = nandroid_restore_partition_extended(backup_path, "/cache", 0)))
-        return ret;
-
-    if (restore_sdext && 0 != (ret = nandroid_restore_partition(backup_path, "/sd-ext")))
         return ret;
 
     sync();

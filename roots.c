@@ -328,10 +328,6 @@ int format_volume(const char* volume) {
         if (strstr(volume, "/sdcard") == volume && is_data_media()) {
             return format_unknown_device(NULL, volume, NULL);
         }
-        // silent failure for sd-ext
-        if (strcmp(volume, "/sd-ext") == 0)
-            return -1;
-        LOGE("unknown volume \"%s\"\n", volume);
         return -1;
     }
     // check to see if /data is being formatted, and if it is /data/media
