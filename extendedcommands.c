@@ -909,6 +909,14 @@ void wipe_battery_stats()
     ui_print("Battery Stats wiped.\n");
 }
 
+int vibration_enabled = 1;
+
+void toggle_vibration()
+{
+    vibration_enabled = !vibration_enabled;
+    ui_print("Vibrate on touch: %s\n", vibration_enabled ? "Enabled" : "Disabled");
+}
+
 void show_advanced_menu()
 {
     static char* headers[] = {  "Advanced Menu",
@@ -922,6 +930,7 @@ void show_advanced_menu()
                             "Wipe Dalvik Cache",
                             "Wipe Battery Stats",
 			    "Wipe /etc/init.d",
+			    "Toggle Vibration",
                             "Fix Permissions",
                             "Show Log",
                             NULL
@@ -984,7 +993,12 @@ void show_advanced_menu()
                 }
                 break;
             }
-            case 6:
+	    case 6:
+            {
+                toggle_vibration();
+                break;
+            }
+            case 7:
             {
                 ensure_path_mounted("/system");
                 ensure_path_mounted("/data");
@@ -993,7 +1007,7 @@ void show_advanced_menu()
                 ui_print("Done!\n");
                 break;
             }
-            case 7:
+            case 8:
             {
                 ui_printlogtail(12);
                 break;

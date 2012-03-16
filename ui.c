@@ -490,7 +490,9 @@ static int input_callback(int fd, short revents, void *data)
 		// they lifted above the touch panel region
 		// touch to select
 		if ((diff_x == TOUCH_VALUE) && (diff_y == TOUCH_VALUE)) {
-		    vibrate(VIBRATOR_TIME_MS);
+		    if (vibration_enabled) {
+			vibrate(VIBRATOR_TIME_MS);	    	
+		    }
 		    ev.code = KEY_POWER;
 		    reset_gestures();
 		}
@@ -516,7 +518,9 @@ static int input_callback(int fd, short revents, void *data)
                     ev.code = KEY_POWER;
                     reset_gestures();
                 }
-                vibrate(VIBRATOR_TIME_MS);
+		if (vibration_enabled) {
+		    vibrate(VIBRATOR_TIME_MS);
+		}
             }
 
             if (slide_right == 1) {
