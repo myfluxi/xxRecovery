@@ -416,6 +416,10 @@ static void *progress_thread(void *cookie)
 //kanged this vibrate stuff from teamwin (thanks guys!)
 #define VIBRATOR_TIME_MS        20
 
+#define TOUCH_VALUE		0
+#define X_SWIPE_THRESH		50
+#define Y_SWIPE_THRESH		25
+
 static int rel_sum = 0;
 static int in_touch = 0; //1 = in a touch
 static int slide_right = 0;
@@ -474,14 +478,23 @@ static int input_callback(int fd, short revents, void *data)
         rel_sum = 0;
     }
 
-    if (ev.type == 3 && ev.code == ABS_MT_TRACKING_ID && ev.value != -1) {
+    if (ev.type == EV_ABS && ev.code == ABS_MT_TRACKING_ID && ev.value != -1) {
         if (in_touch == 0) {
             in_touch = 1; //starting to track touch...
             reset_gestures();
         }
-    } else if (ev.type == 3 && ev.code == ABS_MT_TRACKING_ID && ev.value == -1) {
+    } else if (ev.type == EV_ABS && ev.code == ABS_MT_TRACKING_ID && ev.value == -1) {
             //finger lifted! lets run with this
             ev.type = EV_KEY; //touch panel support!!!
+	    if (touch_y < (gr_fb_height() - gr_get_height(surface)) && touch_x > 0) {
+		// they lifted above the touch panel region
+		// touch to select
+		if ((diff_x == TOUCH_VALUE) && (diff_y == TOUCH_VALUE)) {
+		    vibrate(VIBRATOR_TIME_MS);
+		    ev.code = KEY_POWER;
+		    reset_gestures();
+		}
+	    }
             int keywidth = gr_get_width(surface) / 4;
             int keyoffset = (gr_fb_width() - gr_get_width(surface)) / 2;
             if (touch_y > (gr_fb_height() - gr_get_height(surface)) && touch_x > 0) {
@@ -505,6 +518,7 @@ static int input_callback(int fd, short revents, void *data)
                 }
                 vibrate(VIBRATOR_TIME_MS);
             }
+
             if (slide_right == 1) {
                 ev.code = KEY_POWER;
                 slide_right = 0;
@@ -512,21 +526,19 @@ static int input_callback(int fd, short revents, void *data)
                 ev.code = KEY_BACK;
                 slide_left = 0;
             }
-
             ev.value = 1;
             in_touch = 0;
             reset_gestures();
-    } else if (ev.type == 3 && ev.code == ABS_MT_POSITION_X) {
+    } else if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_X) {
         old_x = touch_x;
         touch_x = ev.value;
         if (old_x != 0)
             diff_x += touch_x - old_x;
-
-	 if(touch_y < (gr_fb_height() - gr_get_height(surface))) {
-            if(diff_x > (gr_fb_width() / 4)) {
+	if(touch_y < (gr_fb_height() - gr_get_height(surface))) {
+            if(diff_x > X_SWIPE_THRESH) {
                 slide_right = 1;
                 reset_gestures();
-	    } else if(diff_x < ((gr_fb_width() / 4) * -1)) {
+	    } else if(diff_x < -X_SWIPE_THRESH) {
                 slide_left = 1;
                 reset_gestures();
             }
@@ -534,18 +546,18 @@ static int input_callback(int fd, short revents, void *data)
             input_buttons();
             //reset_gestures();
         }
-    } else if (ev.type == 3 && ev.code == ABS_MT_POSITION_Y) {
+    } else if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_Y) {
         old_y = touch_y;
         touch_y = ev.value;
         if (old_y != 0)
             diff_y += touch_y - old_y;
 
-   if(touch_y < (gr_fb_height() - gr_get_height(surface))) {
-            if (diff_y > 25) {
+    if(touch_y < (gr_fb_height() - gr_get_height(surface))) {
+	if (diff_y > Y_SWIPE_THRESH) {
                 ev.code = KEY_DOWN;
                 ev.type = EV_KEY;
                 reset_gestures();
-	 } else if (diff_y < -25) {
+	} else if (diff_y < -Y_SWIPE_THRESH) {
                 ev.code = KEY_UP;
                 ev.type = EV_KEY;
                 reset_gestures();
