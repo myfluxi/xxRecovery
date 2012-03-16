@@ -911,19 +911,19 @@ void wipe_battery_stats()
 
 void show_advanced_menu()
 {
-    static char* headers[] = {  "Advanced and Debugging Menu",
+    static char* headers[] = {  "Advanced Menu",
                                 "",
                                 NULL
     };
 
-    static char* list[] = { "Wipe Dalvik Cache",
+    static char* list[] = { "Reboot Recovery",
+                            "Reboot Download",
+			    "Wipe Cache",
+                            "Wipe Dalvik Cache",
                             "Wipe Battery Stats",
-                            "Report Error",
-                            "Key Test",
-                            "Show log",
-                            "Partition External SD Card",
-                            "Partition Internal SD Card",
+			    "Wipe /etc/init.d",
                             "Fix Permissions",
+                            "Show Log",
                             NULL
     };
 
@@ -936,145 +936,66 @@ void show_advanced_menu()
         {
             case 0:
             {
-                if (0 != ensure_path_mounted("/data"))
-                    break;
-                ensure_path_mounted("/sd-ext");
-                ensure_path_mounted("/cache");
-                if (confirm_selection( "Confirm wipe?", "Yes - Wipe Dalvik Cache")) {
-                    __system("rm -r /data/dalvik-cache");
-                    __system("rm -r /cache/dalvik-cache");
-                    __system("rm -r /sd-ext/dalvik-cache");
-                    ui_print("Dalvik Cache wiped.\n");
-                }
-                ensure_path_unmounted("/data");
+                android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
                 break;
             }
             case 1:
             {
-                if (confirm_selection( "Confirm wipe?", "Yes - Wipe Battery Stats"))
-                    wipe_battery_stats();
+                android_reboot(ANDROID_RB_RESTART2, 0, "download");
                 break;
             }
             case 2:
-                handle_failure(1);
+                if (confirm_selection("Confirm wipe?", "Yes - Wipe cache"))
+                {
+                    ui_print("\n-- Wiping cache...\n");
+                    ensure_path_mounted("/cache");
+                    __system("rm -rf /cache");
+                    ui_print("Cache wipe complete.\n");
+                    if (!ui_text_visible()) return;
+                }
                 break;
             case 3:
             {
-                ui_print("Outputting key codes.\n");
-                ui_print("Go back to end debugging.\n");
-                int key;
-                int action;
-                do
-                {
-                    key = ui_wait_key();
-                    action = device_handle_key(key, 1);
-                    ui_print("Key: %d\n", key);
+                if (0 != ensure_path_mounted("/data"))
+                    break;
+                ensure_path_mounted("/cache");
+                if (confirm_selection( "Confirm wipe?", "Yes - Wipe dalvik cache")) {
+                    __system("rm -r /data/dalvik-cache");
+                    __system("rm -r /cache/dalvik-cache");
+                    ui_print("Wiping dalvik cache...\n");
                 }
-                while (action != GO_BACK);
+                ensure_path_unmounted("/data");
                 break;
             }
             case 4:
             {
-                ui_printlogtail(12);
+                if (confirm_selection( "Confirm wipe?", "Yes - Wipe battery stats"))
+                    wipe_battery_stats();
                 break;
             }
-            case 5:
+	    case 5:
             {
-                static char* ext_sizes[] = { "128M",
-                                             "256M",
-                                             "512M",
-                                             "1024M",
-                                             "2048M",
-                                             "4096M",
-                                             NULL };
-
-                static char* swap_sizes[] = { "0M",
-                                              "32M",
-                                              "64M",
-                                              "128M",
-                                              "256M",
-                                              NULL };
-
-                static char* ext_headers[] = { "Ext Size", "", NULL };
-                static char* swap_headers[] = { "Swap Size", "", NULL };
-
-                int ext_size = get_menu_selection(ext_headers, ext_sizes, 0, 0);
-                if (ext_size == GO_BACK)
-                    continue;
-
-                int swap_size = get_menu_selection(swap_headers, swap_sizes, 0, 0);
-                if (swap_size == GO_BACK)
-                    continue;
-
-                char sddevice[256];
-                Volume *vol = volume_for_path("/sdcard");
-                strcpy(sddevice, vol->device);
-                // we only want the mmcblk, not the partition
-                sddevice[strlen("/dev/block/mmcblkX")] = NULL;
-                char cmd[PATH_MAX];
-                setenv("SDPATH", sddevice, 1);
-                sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-                ui_print("Partitioning External SD Card... please wait...\n");
-                if (0 == __system(cmd))
-                    ui_print("Done!\n");
-                else
-                    ui_print("An error occured while partitioning your External SD Card. Please see /tmp/recovery.log for more details.\n");
+                if (0 != ensure_path_mounted("/system"))
+                    break;
+                if (confirm_selection( "Confirm wipe?", "Yes - Wipe init.d scripts")) {
+		    __system("for i in $( ls /system/etc/init.d | grep -v -E \"^0\" ); do rm -f /system/etc/init.d/$i; done");
+                    ui_print("Wipe init.d scripts...\n");
+		    ui_print("Done!\n");
+                }
                 break;
             }
             case 6:
-            {
-                static char* ext_sizes[] = { "128M",
-                                             "256M",
-                                             "512M",
-                                             "1024M",
-                                             "2048M",
-                                             "4096M",
-                                             NULL };
-
-                static char* swap_sizes[] = { "0M",
-                                              "32M",
-                                              "64M",
-                                              "128M",
-                                              "256M",
-                                              NULL };
-
-                static char* ext_headers[] = { "Data Size", "", NULL };
-                static char* swap_headers[] = { "Swap Size", "", NULL };
-
-                int ext_size = get_menu_selection(ext_headers, ext_sizes, 0, 0);
-                if (ext_size == GO_BACK)
-                    continue;
-
-                int swap_size = get_menu_selection(swap_headers, swap_sizes, 0, 0);
-                if (swap_size == GO_BACK)
-                    continue;
-		//Added swap option back for comfort of rookies
-                //int swap_size = 0;
-                //if (swap_size == GO_BACK)
-                //    continue;
-
-                char sddevice[256];
-                Volume *vol = volume_for_path("/emmc");
-                strcpy(sddevice, vol->device);
-                // we only want the mmcblk, not the partition
-                sddevice[strlen("/dev/block/mmcblkX")] = NULL;
-                char cmd[PATH_MAX];
-                setenv("SDPATH", sddevice, 1);
-                sprintf(cmd, "sdparted -es %s -ss %s -efs ext3 -s", ext_sizes[ext_size], swap_sizes[swap_size]);
-                ui_print("Partitioning Internal SD Card... please wait...\n");
-                if (0 == __system(cmd))
-                    ui_print("Done!\n");
-                else
-                    ui_print("An error occured while partitioning your Internal SD Card. Please see /tmp/recovery.log for more details.\n");
-                break;
-            }
-            case 7:
             {
                 ensure_path_mounted("/system");
                 ensure_path_mounted("/data");
                 ui_print("Fixing permissions...\n");
                 __system("fix_permissions");
                 ui_print("Done!\n");
+                break;
+            }
+            case 7:
+            {
+                ui_printlogtail(12);
                 break;
             }
         }

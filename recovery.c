@@ -696,45 +696,47 @@ prompt_and_wait() {
 
         int status;
         switch (chosen_item) {
-            case ITEM_REBOOT:
-                poweroff=0;
-                return;
+             case ITEM_INSTALL_ZIP:
+                 show_install_update_menu();
+                 break;
 
-            case ITEM_WIPE_DATA:
-                wipe_data(ui_text_visible());
-                if (!ui_text_visible()) return;
-                break;
+             case ITEM_NANDROID:
+                 show_nandroid_menu();
+                 break;
 
-            case ITEM_WIPE_CACHE:
-                if (confirm_selection("Confirm wipe?", "Yes - Wipe Cache"))
-                {
-                    ui_print("\n-- Wiping cache...\n");
-                    erase_volume("/cache");
-                    ui_print("Cache wipe complete.\n");
-                    if (!ui_text_visible()) return;
-                }
-                break;
+             case ITEM_WIPE_CACHE:
+                 if (confirm_selection("Confirm wipe?", "Yes - Wipe cache & dalvik cache"))
+                 {
+                     ui_print("\n-- Wiping cache & dalvik cache...\n");
+                     erase_volume("/cache");
+		 if (0 != ensure_path_mounted("/data"))
+                     break;
+                     ensure_path_mounted("/cache");
+                     __system("rm -r /data/dalvik-cache");
+                     ui_print("Wiping dalvik cache...\n");
+                     ensure_path_unmounted("/data");
+                     ui_print("Cache & dalvik cache wipe complete.\n");
+                     if (!ui_text_visible()) return;
+                 }
+                 break;
 
-            case ITEM_APPLY_SDCARD:
-                show_install_update_menu();
-                break;
+             case ITEM_WIPE_DATA:
+                 wipe_data(ui_text_visible());
+                 if (!ui_text_visible()) return;
+                 break;
 
-            case ITEM_NANDROID:
-                show_nandroid_menu();
-                break;
+             case ITEM_PARTITION:
+                 show_partition_menu();
+                 break;
 
-            case ITEM_PARTITION:
-                show_partition_menu();
-                break;
+             case ITEM_ADVANCED:
+                 show_advanced_menu();
+                 break;
 
-            case ITEM_ADVANCED:
-                show_advanced_menu();
-                break;
-                
-            case ITEM_POWEROFF:
-                poweroff = 1;
-                return;
-        }
+             case ITEM_REBOOT:
+                 poweroff=0;
+                 return;
+         }
     }
 }
 
