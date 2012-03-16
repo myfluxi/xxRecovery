@@ -820,7 +820,7 @@ void ui_reset_text_col()
     pthread_mutex_unlock(&gUpdateMutex);
 }
 
-#define MENU_ITEM_HEADER " - "
+#define MENU_ITEM_HEADER " > "
 #define MENU_ITEM_HEADER_LENGTH strlen(MENU_ITEM_HEADER)
 
 int ui_start_menu(char** headers, char** items, int initial_selection) {
@@ -841,7 +841,7 @@ int ui_start_menu(char** headers, char** items, int initial_selection) {
         }
 
         if (gShowBackButton && ui_menu_level > 0) {
-            strcpy(menu[i], " - +++++Go Back+++++");
+            strcpy(menu[i], " < Go Back");
             ++i;
         }
 
