@@ -66,8 +66,8 @@ static int gShowBackButton = 0;
 UIParameters ui_parameters = {
     6,       // indeterminate progress bar frames
     20,      // fps
-    7,       // installation icon frames (0 == static image)
-    13, 190, // installation icon overlay offset
+    0,       // installation icon frames (0 == static image)
+    0, 0,    // installation icon overlay offset
 };
 
 static pthread_mutex_t gUpdateMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -81,11 +81,11 @@ static int ui_has_initialized = 0;
 static int ui_log_stdout = 1;
 
 static const struct { gr_surface* surface; const char *name; } BITMAPS[] = {
-    { &gBackgroundIcon[BACKGROUND_ICON_INSTALLING], "icon_installing" },
-    { &gBackgroundIcon[BACKGROUND_ICON_ERROR],      "icon_error" },
+    { &gBackgroundIcon[BACKGROUND_ICON_INSTALLING], "icon_clockwork" },
+    { &gBackgroundIcon[BACKGROUND_ICON_ERROR],      "icon_clockwork" },
     { &gBackgroundIcon[BACKGROUND_ICON_CLOCKWORK],  "icon_clockwork" },
-    { &gBackgroundIcon[BACKGROUND_ICON_FIRMWARE_INSTALLING], "icon_firmware_install" },
-    { &gBackgroundIcon[BACKGROUND_ICON_FIRMWARE_ERROR], "icon_firmware_error" },
+    { &gBackgroundIcon[BACKGROUND_ICON_FIRMWARE_INSTALLING], "icon_clockwork" },
+    { &gBackgroundIcon[BACKGROUND_ICON_FIRMWARE_ERROR], "icon_clockwork" },
     { &gProgressBarEmpty,               "progress_empty" },
     { &gProgressBarFill,                "progress_fill" },
     { &gVirtualKeys,                    "virtual_keys" },
@@ -156,18 +156,20 @@ static void draw_background_locked(int icon)
     gPagesIdentical = 0;
     gr_color(0, 0, 0, 255);
     gr_fill(0, 0, gr_fb_width(), gr_fb_height());
+    // Always use BACKGROUND_ICON_CLOCKWORK
+    icon = BACKGROUND_ICON_CLOCKWORK;
 
-    if (icon) {
+    //if (icon) {
         gr_surface surface = gBackgroundIcon[icon];
         int iconWidth = gr_get_width(surface);
         int iconHeight = gr_get_height(surface);
         int iconX = (gr_fb_width() - iconWidth) / 2;
         int iconY = (gr_fb_height() - iconHeight) / 2;
         gr_blit(surface, 0, 0, iconWidth, iconHeight, iconX, iconY);
-        if (icon == BACKGROUND_ICON_INSTALLING) {
-            draw_install_overlay_locked(gInstallingFrame);
-        }
-    }
+    //    if (icon == BACKGROUND_ICON_INSTALLING) {
+    //        draw_install_overlay_locked(gInstallingFrame);
+    //    }
+    //}
 }
 
 // Draw the progress bar (if any) on the screen.  Does not flip pages.
