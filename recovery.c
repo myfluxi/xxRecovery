@@ -654,7 +654,7 @@ wipe_data(int confirm) {
         }
     }
 
-    ui_print("\n-- Wiping data...\n");
+    ui_print("\n-- Wiping /data...\n");
     device_wipe_data();
     erase_volume("/data");
     erase_volume("/cache");

@@ -310,31 +310,30 @@ int run_and_remove_extendedcommand()
     remove(EXTENDEDCOMMAND_SCRIPT);
     int i = 0;
     for (i = 20; i > 0; i--) {
-        ui_print("Waiting for SD Card to mount (%ds)\n", i);
+        ui_print("Waiting for SD-Card to mount (%ds)\n", i);
         if (ensure_path_mounted("/sdcard") == 0) {
-            ui_print("SD Card mounted...\n");
+            ui_print("SD-Card mounted...\n");
             break;
         }
         sleep(1);
     }
     remove("/sdcard/clockworkmod/.recoverycheckpoint");
     if (i == 0) {
-        ui_print("Timed out waiting for SD card... continuing anyways.");
+        ui_print("Timed Out waiting for SD-Card... Continuing anyways.");
     }
 
-    ui_print("Verifying SD Card marker...\n");
+    ui_print("Verifying SD-Card marker...\n");
     struct stat st;
     if (stat("/sdcard/clockworkmod/.salted_hash", &st) != 0) {
-        ui_print("SD Card marker not found...\n");
+        ui_print("SD-Card marker not found...\n");
         if (volume_for_path("/emmc") != NULL) {
-            ui_print("Checking Internal SD Card marker...\n");
+            ui_print("Checking internal SD-Card marker...\n");
             ensure_path_unmounted("/sdcard");
             if (ensure_path_mounted_at_mount_point("/emmc", "/sdcard") != 0) {
-                ui_print("Internal SD Card marker not found... continuing anyways.\n");
+                ui_print("Internal SD-Card marker not found... Continuing anyways.\n");
                 // unmount everything, and remount as normal
                 ensure_path_unmounted("/emmc");
                 ensure_path_unmounted("/sdcard");
-
                 ensure_path_mounted("/sdcard");
             }
         }

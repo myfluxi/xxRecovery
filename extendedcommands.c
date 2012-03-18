@@ -81,23 +81,23 @@ int install_zip(const char* packagefilepath)
     return 0;
 }
 
-char* INSTALL_MENU_ITEMS[] = {  "choose zip from external sdcard",
-                                "choose zip from internal sdcard",
-                                "apply /sdcard/update.zip (external)",
-                                "apply /emmc/update.zip (internal)",
-                                "toggle signature verification",
-                                "toggle script asserts",
+char* INSTALL_MENU_ITEMS[] = {  "Choose Zip from internal SD-Card",
+                                "Choose Zip from external SD-Card",
+                                 "Apply /emmc/update.zip (internal)",
+                                 "Apply /sdcard/update.zip (external)",
+                                 "Toggle signature verification",
+                                 "Toggle script asserts",
                                 NULL };
-#define ITEM_CHOOSE_ZIP       0
-#define ITEM_CHOOSE_ZIP_INT   1
-#define ITEM_APPLY_SDCARD     2
-#define ITEM_APPLY_EMMC       3
+#define ITEM_CHOOSE_ZIP_INT   0
+#define ITEM_CHOOSE_ZIP       1
+#define ITEM_APPLY_EMMC       2
+#define ITEM_APPLY_SDCARD     3
 #define ITEM_SIG_CHECK        4
 #define ITEM_ASSERTS          5
 
 void show_install_update_menu()
 {
-    static char* headers[] = {  "Apply update from .zip file on SD card",
+    static char* headers[] = {  "Apply flashable Zip file",
                                 "",
                                 NULL
     };
@@ -329,7 +329,7 @@ void show_choose_zip_menu(const char *mount_point)
         return;
     }
 
-    static char* headers[] = {  "Choose a zip to apply",
+    static char* headers[] = {  "Choose a Zip to apply",
                                 "",
                                 NULL
     };
@@ -385,9 +385,9 @@ void show_mount_usb_storage_menu()
         close(fd);
         return -1;
     }
-    static char* headers[] = {  "USB Mass Storage device",
+    static char* headers[] = {  "USB Mass Storage Device",
                                 "Leaving this menu unmount",
-                                "your SD card from your PC.",
+                                "Your SD-Card from your PC.",
                                 "",
                                 NULL
     };
@@ -420,7 +420,7 @@ int confirm_selection(const char* title, const char* confirm)
     if (0 == stat("/sdcard/clockworkmod/.no_confirm", &info))
         return 1;
 
-    char* confirm_headers[]  = {  title, "  THIS CAN NOT BE UNDONE.", "", NULL };
+    char* confirm_headers[]  = {  title, "THIS CAN NOT BE UNDONE!", "", NULL };
 	if (0 == stat("/sdcard/clockworkmod/.one_confirm", &info)) {
 		char* items[] = { "No",
 						confirm, //" Yes -- wipe partition",   // [1]
@@ -636,19 +636,19 @@ void show_partition_menu()
 		for (i = 0; i < num_volumes; ++i) {
   			Volume* v = &device_volumes[i];
   			if(strcmp("ramdisk", v->fs_type) != 0 && strcmp("mtd", v->fs_type) != 0 && strcmp("emmc", v->fs_type) != 0 && strcmp("bml", v->fs_type) != 0) {
-    				sprintf(&mount_menue[mountable_volumes].mount, "mount %s", v->mount_point);
-    				sprintf(&mount_menue[mountable_volumes].unmount, "unmount %s", v->mount_point);
+				sprintf(&mount_menue[mountable_volumes].mount, "Mount %s", v->mount_point);
+				sprintf(&mount_menue[mountable_volumes].unmount, "Unmount %s", v->mount_point);
     				mount_menue[mountable_volumes].v = &device_volumes[i];
     				++mountable_volumes;
     				if (is_safe_to_format(v->mount_point)) {
-      					sprintf(&format_menue[formatable_volumes].txt, "format %s", v->mount_point);
+					sprintf(&format_menue[formatable_volumes].txt, "Format %s", v->mount_point);
       					format_menue[formatable_volumes].v = &device_volumes[i];
       					++formatable_volumes;
     				}
   		  }
   		  else if (strcmp("ramdisk", v->fs_type) != 0 && strcmp("mtd", v->fs_type) == 0 && is_safe_to_format(v->mount_point))
   		  {
-    				sprintf(&format_menue[formatable_volumes].txt, "format %s", v->mount_point);
+				sprintf(&format_menue[formatable_volumes].txt, "Format %s", v->mount_point);
     				format_menue[formatable_volumes].v = &device_volumes[i];
     				++formatable_volumes;
   			}
@@ -679,7 +679,7 @@ void show_partition_menu()
     		}
 
         if (!is_data_media()) {
-          options[mountable_volumes + formatable_volumes] = "mount USB storage";
+          options[mountable_volumes + formatable_volumes] = "Mount USB storage";
           options[mountable_volumes + formatable_volumes + 1] = NULL;
         }
         else {
@@ -738,9 +738,8 @@ void show_nandroid_advanced_restore_menu(const char* path)
 
     static char* advancedheaders[] = {  "Choose an image to restore",
                                 "",
-                                "Choose an image to restore",
-                                "first. The next menu will",
-                                "you more options.",
+                                "First choose an image to restore",
+                                "The next menu will offer more options",
                                 "",
                                 NULL
     };
@@ -751,16 +750,16 @@ void show_nandroid_advanced_restore_menu(const char* path)
     if (file == NULL)
         return;
 
-    static char* headers[] = {  "Nandroid Advanced Restore",
+    static char* headers[] = {  "Nandroid advanced restore",
                                 "",
                                 NULL
     };
 
-    static char* list[] = { "Restore boot",
-                            "Restore system",
-                            "Restore data",
-                            "Restore cache",
-                            "Restore wimax",
+    static char* list[] = { "Restore /boot",
+                            "Restore /system",
+                            "Restore /data",
+                            "Restore /cache",
+                            "Restore /wimax",
                             NULL
     };
     
@@ -775,23 +774,23 @@ void show_nandroid_advanced_restore_menu(const char* path)
     switch (chosen_item)
     {
         case 0:
-            if (confirm_selection(confirm_restore, "Yes - Restore boot"))
+            if (confirm_selection(confirm_restore, "Yes - Restore /boot"))
                 nandroid_restore(file, 1, 0, 0, 0, 0, 0);
             break;
         case 1:
-            if (confirm_selection(confirm_restore, "Yes - Restore system"))
+            if (confirm_selection(confirm_restore, "Yes - Restore /system"))
                 nandroid_restore(file, 0, 1, 0, 0, 0, 0);
             break;
         case 2:
-            if (confirm_selection(confirm_restore, "Yes - Restore data"))
+            if (confirm_selection(confirm_restore, "Yes - Restore /data"))
                 nandroid_restore(file, 0, 0, 1, 0, 0, 0);
             break;
         case 3:
-            if (confirm_selection(confirm_restore, "Yes - Restore cache"))
+            if (confirm_selection(confirm_restore, "Yes - Restore /cache"))
                 nandroid_restore(file, 0, 0, 0, 1, 0, 0);
             break;
         case 4:
-            if (confirm_selection(confirm_restore, "Yes - Restore wimax"))
+            if (confirm_selection(confirm_restore, "Yes - Restore /wimax"))
                 nandroid_restore(file, 0, 0, 0, 0, 0, 1);
             break;
     }
@@ -799,17 +798,17 @@ void show_nandroid_advanced_restore_menu(const char* path)
 
 void show_nandroid_menu()
 {
-    static char* headers[] = {  "Nandroid",
+    static char* headers[] = {  "Nandroid backup & restore",
                                 "",
                                 NULL
     };
 
-    static char* list[] = { "backup to internal sdcard",
-                            "restore from internal sdcard",
-                            "advanced restore from internal sdcard",
-                            "backup to external sdcard",
-                            "restore from external sdcard",
-                            "advanced restore from external sdcard",
+    static char* list[] = { "Backup to internal SD-Card",
+                            "Restore from internal SD-Card",
+                            "Advanced Restore from internal SD-Card",
+                            "Backup to external SD-Card",
+                            "Restore from eternal SD-Card",
+                            "Advanced restore from external SD-Card",
                             NULL
     };
 
