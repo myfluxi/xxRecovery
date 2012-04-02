@@ -284,9 +284,21 @@ static void draw_screen_locked(void)
             if (batt_level < 21) {
                 gr_color(255, 0, 0, 255);
             }
+
+	    struct tm *current;
+	    time_t now;
+	    now = time(NULL) + (3600 * 2); // add 2 hours
+	    current = localtime(&now);
+
             char batt_text[40];
-            sprintf(batt_text, "[%d%%]", batt_level);
-            draw_text_line(0, batt_text, RIGHT_ALIGN);
+            sprintf(batt_text, "[%d%%  %02D:%02D]", batt_level, current->tm_hour, current->tm_min);
+
+            if (now == NULL) { // just in case
+		sprintf(batt_text, "[%d%%]", batt_level);
+	    }
+
+            gr_color(HEADER_TEXT_COLOR);
+	    draw_text_line(0, batt_text, RIGHT_ALIGN);
 
             gr_color(MENU_TEXT_COLOR);
             gr_fill(0, (menu_top + menu_sel - menu_show_start) * CHAR_HEIGHT,
