@@ -231,7 +231,7 @@ static void draw_virtualkeys_locked()
 static void draw_text_line(int row, const char* t, int align) {
     int col = 0;
     if (t[0] != '\0') {
-        int length = strnlen(t, MENU_MAX_COLS) * CHAR_WIDTH;
+        int length = strnlen(t, MENU_MAX_COLS) * BOARD_RECOVERY_CHAR_WIDTH;
         switch(align)
         {
             case LEFT_ALIGN:
