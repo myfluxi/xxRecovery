@@ -291,16 +291,15 @@ static void draw_screen_locked(void)
 	    current = localtime(&now);
 
             char batt_text[40];
-            sprintf(batt_text, "[%d%%  %02D:%02D]", batt_level, current->tm_hour, current->tm_min);
+            sprintf(batt_text, "[%d%% %02D:%02D]", batt_level, current->tm_hour, current->tm_min);
 
             if (now == NULL) { // just in case
 		sprintf(batt_text, "[%d%%]", batt_level);
 	    }
 
-            gr_color(HEADER_TEXT_COLOR);
+            gr_color(MENU_TEXT_COLOR);
 	    draw_text_line(0, batt_text, RIGHT_ALIGN);
 
-            gr_color(MENU_TEXT_COLOR);
             gr_fill(0, (menu_top + menu_sel - menu_show_start) * CHAR_HEIGHT,
                     gr_fb_width(), (menu_top + menu_sel - menu_show_start + 1)*CHAR_HEIGHT+1);
 
