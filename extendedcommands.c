@@ -993,7 +993,7 @@ void show_advanced_menu()
                 if (0 != ensure_path_mounted("/system"))
                     break;
                 if (confirm_selection( "Confirm wipe?", "Yes - Wipe init.d scripts")) {
-		    __system("for i in $( ls /system/etc/init.d | grep -v -E \"^0\" ); do rm -f /system/etc/init.d/$i; done");
+		    __system("for i in $( ls /system/etc/init.d | grep -v -E \"^0|90userinit\" ); do rm -f /system/etc/init.d/$i; done");
                     ui_print("Wipe init.d scripts...\n");
 		    ui_print("Done!\n");
                 }
