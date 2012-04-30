@@ -936,6 +936,7 @@ void show_advanced_menu()
                             "Wipe Dalvik Cache",
                             "Wipe Battery Stats",
 			    "Wipe /etc/init.d",
+			    "Wipe /data/local/userinit.sh",
 			    "Toggle Vibration",
                             "Fix Permissions",
                             "Show Log",
@@ -1001,10 +1002,21 @@ void show_advanced_menu()
             }
 	    case 6:
             {
+                if (0 != ensure_path_mounted("/data"))
+                    break;
+                if (confirm_selection( "Confirm wipe?", "Yes - Wipe userinit.sh script")) {
+		    __system("rm -f /data/local/userinit.sh");
+                    ui_print("Wipe userinit.sh script...\n");
+		    ui_print("Done!\n");
+                }
+                break;
+            }
+	    case 7:
+            {
                 toggle_vibration();
                 break;
             }
-            case 7:
+            case 8:
             {
                 ensure_path_mounted("/system");
                 ensure_path_mounted("/data");
@@ -1013,7 +1025,7 @@ void show_advanced_menu()
                 ui_print("Done!\n");
                 break;
             }
-            case 8:
+            case 9:
             {
                 ui_printlogtail(12);
                 break;
