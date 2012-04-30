@@ -79,6 +79,7 @@ static gr_surface gProgressBarFill;
 static gr_surface gVirtualKeys; // surface for our virtual key buttons
 static int ui_has_initialized = 0;
 static int ui_log_stdout = 1;
+int touch_disable = 0;
 
 static const struct { gr_surface* surface; const char *name; } BITMAPS[] = {
     { &gBackgroundIcon[BACKGROUND_ICON_INSTALLING], "icon_clockwork" },
@@ -266,6 +267,7 @@ static void draw_screen_locked(void)
     if (!ui_has_initialized) return;
     draw_background_locked(gCurrentIcon);
     draw_progress_locked();
+    check_touch_disable();
 
     if (show_text) {
         gr_color(0, 0, 0, 160);
@@ -499,17 +501,19 @@ static int input_callback(int fd, short revents, void *data)
     } else if (ev.type == EV_ABS && ev.code == ABS_MT_TRACKING_ID && ev.value == -1) {
             //finger lifted! lets run with this
             ev.type = EV_KEY; //touch panel support!!!
-	    if (touch_y < (gr_fb_height() - gr_get_height(surface)) && touch_x > 0) {
-		// they lifted above the touch panel region
-		// touch to select
-		if ((diff_x == TOUCH_VALUE) && (diff_y == TOUCH_VALUE)) {
-		    if (vibration_enabled) {
-			vibrate(VIBRATOR_TIME_MS);	    	
-		    }
-		    ev.code = KEY_POWER;
-		    reset_gestures();
-		}
-	    }
+            if (!touch_disable) {
+                if (touch_y < (gr_fb_height() - gr_get_height(surface)) && touch_x > 0) {
+                    // they lifted above the touch panel region
+                    // touch to select
+                    if ((diff_x == TOUCH_VALUE) && (diff_y == TOUCH_VALUE)) {
+		        if (vibration_enabled) {
+			    vibrate(VIBRATOR_TIME_MS);
+		        }
+		        ev.code = KEY_POWER;
+		        reset_gestures();
+                    }
+                }
+            }
             int keywidth = gr_get_width(surface) / 4;
             int keyoffset = (gr_fb_width() - gr_get_width(surface)) / 2;
             if (touch_y > (gr_fb_height() - gr_get_height(surface)) && touch_x > 0) {
@@ -1075,4 +1079,18 @@ int get_batt_stats(void)
             level = 0;
     }
     return level;
+}
+
+int check_touch_disable(void)
+{
+    ensure_path_mounted("/data");
+
+    FILE * file = fopen("/data/.disable_touchselect","r");
+    if (file)
+    {
+        touch_disable = 1;
+        fclose(file);
+        return true;
+    }
+    return false;
 }
