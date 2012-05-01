@@ -935,6 +935,7 @@ void show_advanced_menu()
 			    "Wipe Cache",
                             "Wipe Dalvik Cache",
                             "Wipe Battery Stats",
+			    "Wipe xxTweaker settings",
 			    "Wipe /etc/init.d",
 			    "Wipe /data/local/userinit.sh",
 			    "Toggle Vibration",
@@ -991,6 +992,17 @@ void show_advanced_menu()
             }
 	    case 5:
             {
+                if (0 != ensure_path_mounted("/data"))
+                    break;
+                if (confirm_selection( "Confirm wipe?", "Yes - Wipe xxTweaker settings")) {
+		    __system("rm -rf /data/data/net.fluxi.xxTweaker");
+                    ui_print("Wipe xxTweaker settings...\n");
+		    ui_print("Done!\n");
+                }
+                break;
+            }
+	    case 6:
+            {
                 if (0 != ensure_path_mounted("/system"))
                     break;
                 if (confirm_selection( "Confirm wipe?", "Yes - Wipe init.d scripts")) {
@@ -1000,7 +1012,7 @@ void show_advanced_menu()
                 }
                 break;
             }
-	    case 6:
+	    case 7:
             {
                 if (0 != ensure_path_mounted("/data"))
                     break;
@@ -1011,12 +1023,12 @@ void show_advanced_menu()
                 }
                 break;
             }
-	    case 7:
+	    case 8:
             {
                 toggle_vibration();
                 break;
             }
-            case 8:
+            case 9:
             {
                 ensure_path_mounted("/system");
                 ensure_path_mounted("/data");
@@ -1025,7 +1037,7 @@ void show_advanced_menu()
                 ui_print("Done!\n");
                 break;
             }
-            case 9:
+            case 10:
             {
                 ui_printlogtail(12);
                 break;
