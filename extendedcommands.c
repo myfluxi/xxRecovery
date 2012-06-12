@@ -845,7 +845,7 @@ void show_nandroid_menu()
                             "Restore from internal SD-Card",
                             "Advanced Restore from internal SD-Card",
                             "Backup to external SD-Card",
-                            "Restore from eternal SD-Card",
+                            "Restore from external SD-Card",
                             "Advanced restore from external SD-Card",
                             NULL
     };
