@@ -932,6 +932,7 @@ void show_advanced_menu()
 
     static char* list[] = { "Reboot Recovery",
                             "Reboot Download",
+                            "Power Off",
 			    "Wipe Cache",
                             "Wipe Dalvik Cache",
                             "Wipe Battery Stats",
@@ -962,6 +963,11 @@ void show_advanced_menu()
                 break;
             }
             case 2:
+            {
+                android_reboot(ANDROID_RB_POWEROFF, 0, 0);
+                break;
+            }
+            case 3:
                 if (confirm_selection("Confirm wipe?", "Yes - Wipe cache"))
                 {
                     ui_print("\n-- Wiping cache...\n");
@@ -971,7 +977,7 @@ void show_advanced_menu()
                     if (!ui_text_visible()) return;
                 }
                 break;
-            case 3:
+            case 4:
             {
                 if (0 != ensure_path_mounted("/data"))
                     break;
@@ -984,13 +990,13 @@ void show_advanced_menu()
                 ensure_path_unmounted("/data");
                 break;
             }
-            case 4:
+            case 5:
             {
                 if (confirm_selection( "Confirm wipe?", "Yes - Wipe battery stats"))
                     wipe_battery_stats();
                 break;
             }
-	    case 5:
+	    case 6:
             {
                 if (0 != ensure_path_mounted("/data"))
                     break;
@@ -1001,7 +1007,7 @@ void show_advanced_menu()
                 }
                 break;
             }
-	    case 6:
+	    case 7:
             {
                 if (0 != ensure_path_mounted("/system"))
                     break;
@@ -1012,7 +1018,7 @@ void show_advanced_menu()
                 }
                 break;
             }
-	    case 7:
+	    case 8:
             {
                 if (0 != ensure_path_mounted("/data"))
                     break;
@@ -1023,12 +1029,12 @@ void show_advanced_menu()
                 }
                 break;
             }
-	    case 8:
+	    case 9:
             {
                 toggle_vibration();
                 break;
             }
-            case 9:
+            case 10:
             {
                 ensure_path_mounted("/system");
                 ensure_path_mounted("/data");
@@ -1037,7 +1043,7 @@ void show_advanced_menu()
                 ui_print("Done!\n");
                 break;
             }
-            case 10:
+            case 11:
             {
                 ui_printlogtail(12);
                 break;
