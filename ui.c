@@ -80,6 +80,7 @@ static gr_surface gVirtualKeys; // surface for our virtual key buttons
 static int ui_has_initialized = 0;
 static int ui_log_stdout = 1;
 int touch_disable = 0;
+time_t last_touch = 0;
 
 static const struct { gr_surface* surface; const char *name; } BITMAPS[] = {
     { &gBackgroundIcon[BACKGROUND_ICON_INSTALLING], "icon_clockwork" },
@@ -133,6 +134,18 @@ static double now() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec + tv.tv_usec / 1000000.0;
+}
+
+// Return the current time in ms
+static time_t now_msec(void)
+{
+    struct timeval now;
+    time_t t;
+
+    gettimeofday(&now, NULL);
+    t = now.tv_sec * 1000000;
+    t += now.tv_usec;
+    return t / 1000;
 }
 
 // Draw the given frame over the installation overlay animation.  The
@@ -506,11 +519,14 @@ static int input_callback(int fd, short revents, void *data)
                     // they lifted above the touch panel region
                     // touch to select
                     if ((diff_x == TOUCH_VALUE) && (diff_y == TOUCH_VALUE)) {
-		        if (vibration_enabled) {
-			    vibrate(VIBRATOR_TIME_MS);
-		        }
-		        ev.code = KEY_POWER;
-		        reset_gestures();
+			if (now_msec() - last_touch < 300) {
+		            ev.code = KEY_POWER;
+		            if (vibration_enabled) {
+			        vibrate(VIBRATOR_TIME_MS);
+		            }
+		            reset_gestures();
+			}
+			last_touch = now_msec();
                     }
                 }
             }
