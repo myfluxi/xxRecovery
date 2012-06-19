@@ -983,9 +983,10 @@ void show_advanced_menu()
                     break;
                 ensure_path_mounted("/cache");
                 if (confirm_selection( "Confirm wipe?", "Yes - Wipe dalvik cache")) {
+                    ui_print("Wiping dalvik cache...\n");
                     __system("rm -r /data/dalvik-cache");
                     __system("rm -r /cache/dalvik-cache");
-                    ui_print("Wiping dalvik cache...\n");
+                    ui_print("Done!\n");
                 }
                 ensure_path_unmounted("/data");
                 break;
